@@ -517,7 +517,8 @@ const watchFast = watchTaskMaker({livereload: false, task: () => gulp.series('bu
 gulp.task(lint);
 gulp.task(watch);
 
-gulp.task(clean);
+// Steffen commented out for better speed
+// gulp.task(clean);
 
 gulp.task(escapePostbidConfig);
 
@@ -530,6 +531,10 @@ gulp.task('build-bundle-prod', gulp.series('build-creative-prod', makeWebpackPkg
 // of dead code elimination.
 gulp.task('build-bundle-verbose', gulp.series('build-creative-dev', makeWebpackPkg(makeVerbose(standaloneDebuggingConfig)), makeWebpackPkg(makeVerbose()), gulpBundle.bind(null, true)));
 
+// TAD special tasks
+gulp.task('build-creative', gulp.series(buildCreative, updateCreativeExample));
+gulp.task('build-bundle-prod-fast', gulp.series(gulpBundle.bind(null, false)));
+
 // public tasks (dependencies are needed for each task since they can be ran on their own)
 gulp.task('test-only', test);
 gulp.task('test-all-features-disabled', testTaskMaker({disableFeatures: require('./features.json'), oneBrowser: 'chrome', watch: false}));
@@ -540,7 +545,12 @@ gulp.task(viewCoverage);
 
 gulp.task('coveralls', gulp.series('test-coverage', coveralls));
 
-gulp.task('build', gulp.series(clean, 'build-bundle-prod', updateCreativeExample));
+// TAD rewrite
+// gulp.task('build', gulp.series(clean, 'build-bundle-prod', updateCreativeExample));
+// TAD special
+gulp.task('build-noclean', gulp.series('build-bundle-prod-fast'));
+gulp.task('build', gulp.series(clean, 'build-bundle-prod'));
+
 gulp.task('build-postbid', gulp.series(escapePostbidConfig, buildPostbid));
 
 gulp.task('serve', gulp.series(clean, lint, gulp.parallel('build-bundle-dev', watch, test)));
